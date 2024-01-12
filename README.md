@@ -1,4 +1,6 @@
-# essentials
+# [H3 Grid Explorer](http://mkeller3.github.io/h3_grid_explorer)
+
+![preview](./images/h3.png)
 
 ## Project setup
 
