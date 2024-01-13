@@ -2,13 +2,13 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref } from 'vue';
 import maplibregl from "maplibre-gl";
-import { polygonToCells, cellToBoundary, cellToParent, getResolution } from 'h3-js';
+import { polygonToCells, cellToBoundary, cellToParent } from 'h3-js';
 import { useZipCodeStore } from '@/store/zipCode';
 
 export const useMapStore = defineStore('mapStore', () => {
     let map = ref(null);
 
-    let zoomH3Map = {
+    let zoomH3Map = ref({
         "1": 1,
         "2": 2,
         "3": 3,
@@ -31,7 +31,9 @@ export const useMapStore = defineStore('mapStore', () => {
         "20": 10,
         "21": 10,
         "22": 10
-    }
+    })
+
+    let h3Map = ref({});
 
     /**
      * Method used to build map
@@ -68,8 +70,6 @@ export const useMapStore = defineStore('mapStore', () => {
 
         map.value.addControl(new maplibregl.NavigationControl());
 
-        await useZipCodeStore().generateZipCodeVariables();
-
         map.value.on('moveend', function () {
             let bounds = map.value.getBounds();
             let ne = bounds.getNorthEast();
@@ -82,35 +82,21 @@ export const useMapStore = defineStore('mapStore', () => {
                 [sw.lng, ne.lat]
             ]
             let zoomLevel = parseInt(map.value.getZoom())
-            let cells = polygonToCells(coords, zoomH3Map[parseInt(zoomLevel)], true)
+            let cells = polygonToCells(coords, zoomH3Map.value[parseInt(zoomLevel)], true)
             let featureCollection = {
                 "type": "FeatureCollection",
                 "features": []
             }
-            let h3Map = {}
             for (let cell in cells) {
-                h3Map[cells[cell]] = {
-                    "count": 0
+                let count = 0
+                if(h3Map.value[cells[cell]] != undefined){
+                    count = h3Map.value[cells[cell]]['count']
                 }
-            }
-            let zipCodes = useZipCodeStore().zipCodeMap
-            for (let zipCodeData in zipCodes) {
-                let zipCode = zipCodes[zipCodeData]
-                let key = `h3_${zoomLevel}`
-                let h3_value = cellToParent(zipCode['h3'], zoomH3Map[parseInt(zoomLevel)])
-                if (zipCode[key] == undefined) {
-                    zipCode[key] = h3_value;
-                }
-                if(h3Map[h3_value]){
-                    h3Map[h3_value]['count'] = h3Map[h3_value]['count'] += 1
-                }
-            }
-            for (let cell in cells) {
                 featureCollection['features'].push({
                     "type": "Feature",
                     "properties": {
                         "h3": cells[cell],
-                        "count": h3Map[cells[cell]]['count']
+                        "count": count
                     },
                     "geometry": {
                         "type": "Polygon",
@@ -170,6 +156,8 @@ export const useMapStore = defineStore('mapStore', () => {
 
     return {
         map,
+        h3Map,
+        zoomH3Map,
         buildMap,
     }
 
