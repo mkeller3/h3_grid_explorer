@@ -1,4 +1,4 @@
-// zipCode.js
+// h3.js
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref } from 'vue';
 import { latLngToCell } from 'h3-js'
@@ -6,23 +6,23 @@ import { useMapStore } from '@/store/map';
 import { cellToParent } from 'h3-js';
 import { read, utils } from 'xlsx';
 
-export const useZipCodeStore = defineStore('zipCodeStore', () => {
-    let loading = ref(true)
+export const useH3Store = defineStore('h3Store', () => {
+    let loading = ref(false)
+    let fileData = ref("");
+    let latColumn = ref("");
+    let lngColumn = ref("");
+    let h3IndexesBuilt = ref(false);
+    let h3IndexesConfigured = ref(false);
 
     /**
-     * Method used to generate the zip code variables
+     * Method used to generate h3 grid
      */
-    async function generateZipCodeVariables() {
+    async function generateH3Values() {       
+        
+        loading.value = true;
+        h3IndexesBuilt.value = true
 
-        const response = await fetch("population_points.xlsx");
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        let file = await response.arrayBuffer()
-
-        const workbook = read(file);
+        const workbook = read(fileData.value);
 
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
@@ -30,7 +30,7 @@ export const useZipCodeStore = defineStore('zipCodeStore', () => {
 
         let h3IndexMap = {}
         sheetData.forEach(row => {
-            let h3Value = latLngToCell(row['lat'], row['lng'], 10)
+            let h3Value = latLngToCell(row[latColumn.value], row[lngColumn.value], 10)
             for (var res = 1; res <= 9; res++) {
                 let h3_value = cellToParent(h3Value, res)
                 if (h3IndexMap[h3_value]) {
@@ -44,16 +44,22 @@ export const useZipCodeStore = defineStore('zipCodeStore', () => {
         })
         loading.value = false;
         useMapStore().h3Map = h3IndexMap;
+        h3IndexesBuilt.value = true;
 
     }
 
     return {
-        generateZipCodeVariables,
-        loading
+        generateH3Values,
+        loading,
+        fileData,
+        lngColumn,
+        latColumn,
+        h3IndexesBuilt,
+        h3IndexesConfigured
     }
 
 });
 
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useZipCodeStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useH3Store, import.meta.hot))
 }
