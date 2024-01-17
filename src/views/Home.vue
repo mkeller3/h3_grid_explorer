@@ -83,6 +83,9 @@ let columns = ref([]);
 let latColumns = ["lat", "y", "latitude"];
 let lngColumns = ["lng", "x", "longitude"];
 
+/**
+ * Method used to upload a local excel file
+ */
 function uploadFile() {
   if (filePath.value != "") {
     const reader = new FileReader();
@@ -109,12 +112,18 @@ function uploadFile() {
   }
 }
 
+/**
+ * Method used to call the method to generate the h3 values for each point at h3 resolutions 1-10.
+ */
 async function buildH3Indexes() {
   h3Store.loading = true;
   h3Store.h3IndexesConfigured = true;
   await h3Store.generateH3Values();
 }
 
+/**
+ * Method used to run the application with the demo file of roughly 1 million points.
+ */
 async function useDemoFile() {
   h3Store.loading = true;
   h3Store.h3IndexesConfigured = true;
