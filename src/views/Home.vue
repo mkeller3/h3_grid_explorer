@@ -2,7 +2,7 @@
   <v-container fluid class="ma-0 pa-0 h-100">
     <v-row class="ma-0 pa-0 h-100" justify="center" v-if="!h3Store.h3IndexesBuilt">
       <v-col class="h-100 mx-auto text-center" cols="11" lg="6" v-if="!h3Store.h3IndexesConfigured">
-        <div class="text-h3 mt-5">Welcome to the H3 Index Explorer</div>
+        <div class="text-h3 mt-5">Welcome to H3 Index Explorer</div>
         <div>H3 Index Explorer allows you to take an excel sheet of 1,000's of point and visualize them
           at multiple levels using h3 indexes. To get started, import your own file of locations or use
           the default template of US population.

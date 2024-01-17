@@ -136,6 +136,9 @@ export const useMapStore = defineStore('mapStore', () => {
 
     }
 
+    /**
+     * Method used to build the h3 cells on move end of map
+     */
     function buildH3Cells() {
         let bounds = map.value.getBounds();
         let ne = bounds.getNorthEast();
@@ -205,6 +208,9 @@ export const useMapStore = defineStore('mapStore', () => {
         }
     }
 
+    /**
+     * Method used to update the style of the h3 cells
+     */
     function updateStyle() {
         let colorRange = [
             'interpolate',

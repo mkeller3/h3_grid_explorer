@@ -15,7 +15,7 @@ export const useH3Store = defineStore('h3Store', () => {
     let h3IndexesConfigured = ref(false);
 
     /**
-     * Method used to generate h3 grid
+     * Method used to generate h3 grids
      */
     async function generateH3Values() {       
         
